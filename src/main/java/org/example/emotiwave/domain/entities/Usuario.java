@@ -3,11 +3,15 @@ package org.example.emotiwave.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -15,7 +19,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Table(name = "T_USUARIO")
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,8 +27,14 @@ public class Usuario {
     private String username;
     private String password;
     private String email;
-    private String spotifyId;
-    private LocalDate criado_em;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
+
+    @OneToOne
+    private SpotifyTokens spotify_info;
+
+    private LocalDate criado_em  = LocalDate.now();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<UsuarioMusica> analises = new ArrayList<>();
@@ -43,5 +53,22 @@ public class Usuario {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.name()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 }
