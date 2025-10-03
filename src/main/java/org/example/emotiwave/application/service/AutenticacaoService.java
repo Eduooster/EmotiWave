@@ -22,8 +22,8 @@ public class AutenticacaoService {
 
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.password());
 
-        var authentication = authenticationManager.authenticate(authenticationToken);
+        var tokenJwt =tokenService.gerarToken((UserDetails) authenticationManager.authenticate(authenticationToken).getPrincipal());
 
-        return tokenService.gerarToken((UserDetails) authentication.getPrincipal());
+        return tokenJwt;
     }
 }

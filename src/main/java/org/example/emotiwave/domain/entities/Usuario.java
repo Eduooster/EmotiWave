@@ -7,9 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,8 +29,8 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
 
-    @OneToOne
-    private SpotifyTokens spotify_info;
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private SpotifyToken spotify_info;
 
     private LocalDate criado_em  = LocalDate.now();
 

@@ -3,14 +3,15 @@ package org.example.emotiwave.web.Controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.emotiwave.application.dto.out.DadosTokenJwtResponseDto;
+import org.example.emotiwave.application.mapper.UsuarioMapperImpl;
 import org.example.emotiwave.application.service.AutenticacaoService;
 import org.example.emotiwave.application.dto.in.DadoAuthRequestRequestDto;
+import org.example.emotiwave.application.service.UserDetailsServiceImpl;
+import org.example.emotiwave.domain.entities.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,4 +27,6 @@ public class AutenticacaoController {
 
         return ResponseEntity.ok(new DadosTokenJwtResponseDto(tokenJWT));
     }
+
+
 }
