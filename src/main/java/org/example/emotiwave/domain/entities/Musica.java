@@ -22,9 +22,7 @@ public class Musica {
 
     private String titulo;
     private String artista;
-    private String spotify_track_id;
-    private String Album;
-    private LocalDate lancamento;
+    private String spotifyTrackId;
 
     @OneToMany(mappedBy = "musica", cascade = CascadeType.ALL)
     private List<UsuarioMusica> analises = new ArrayList<>();

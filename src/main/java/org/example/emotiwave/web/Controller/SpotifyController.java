@@ -1,6 +1,8 @@
 package org.example.emotiwave.web.Controller;
 
 
+import org.example.emotiwave.application.dto.in.MusicaSimplesDto;
+import org.example.emotiwave.application.dto.in.TopMusicasUsuarioDto;
 import org.example.emotiwave.application.service.AutenticacaoService;
 import org.example.emotiwave.application.service.PegarMusicasMaisOuvidas;
 import org.example.emotiwave.application.service.SpotifyAuthService;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -52,7 +55,7 @@ public class SpotifyController {
    @GetMapping("/user-top-read")
     public ResponseEntity userTopRead(@AuthenticationPrincipal Usuario usuario)
     {
-        ResponseEntity<String> response = pegarMusicasMaisOuvidas.pegarMusicasMaisOuvidas(usuario);
+        ResponseEntity<List<MusicaSimplesDto>> response = pegarMusicasMaisOuvidas.pegarMusicasMaisOuvidas(usuario);
         return ResponseEntity.ok(response);
     }
 
