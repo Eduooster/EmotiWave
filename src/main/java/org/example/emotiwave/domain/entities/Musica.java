@@ -23,6 +23,8 @@ public class Musica {
     private String titulo;
     private String artista;
     private String spotifyTrackId;
+    @Lob
+    private String letra;
 
     @OneToMany(mappedBy = "musica", cascade = CascadeType.ALL)
     private List<UsuarioMusica> analises = new ArrayList<>();
