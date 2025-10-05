@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.processing.Generated;
 import org.example.emotiwave.application.dto.in.UsuarioCreateRequestDto;
+import org.example.emotiwave.application.dto.out.ListaUsuarioResponseDto;
 import org.example.emotiwave.application.dto.out.UsuarioDetailsResponseDto;
 import org.example.emotiwave.domain.entities.Role;
 import org.example.emotiwave.domain.entities.Usuario;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-04T11:34:01-0300",
+    date = "2025-10-05T19:14:40-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
@@ -57,5 +58,16 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         UsuarioDetailsResponseDto usuarioDetailsResponseDto = new UsuarioDetailsResponseDto( id, username, email, dataCadastro, roles );
 
         return usuarioDetailsResponseDto;
+    }
+
+    @Override
+    public ListaUsuarioResponseDto toListaResponseDto(Usuario usuario) {
+        if ( usuario == null ) {
+            return null;
+        }
+
+        ListaUsuarioResponseDto listaUsuarioResponseDto = new ListaUsuarioResponseDto();
+
+        return listaUsuarioResponseDto;
     }
 }

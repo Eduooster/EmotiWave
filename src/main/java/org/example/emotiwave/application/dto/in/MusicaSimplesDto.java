@@ -8,5 +8,5 @@ import lombok.Data;
 public class MusicaSimplesDto {
     private String titulo;
     private String artista;
-    private String spotify_track_id;
+    private String spotifyTrackId;
 }

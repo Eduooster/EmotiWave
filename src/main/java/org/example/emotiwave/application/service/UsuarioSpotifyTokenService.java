@@ -1,5 +1,7 @@
 package org.example.emotiwave.application.service;
 
+import org.example.emotiwave.application.dto.out.AcessTokenResponseDto;
+import org.example.emotiwave.application.mapper.SpotifyTokenMapper;
 import org.example.emotiwave.domain.entities.SpotifyToken;
 import org.example.emotiwave.domain.entities.Usuario;
 import org.example.emotiwave.infra.repository.SpotifyTokenRepository;
@@ -19,25 +21,17 @@ public class UsuarioSpotifyTokenService {
     @Autowired
     SpotifyTokenRepository spotifyTokenRepository;
 
-    public void vincularToken(Map<String,Object> tokens, Usuario usuario) {
+    @Autowired
+    SpotifyTokenMapper spotifyTokenMapper;
 
-        System.out.println("vinculo token" + tokens);
+    public void vincularToken(AcessTokenResponseDto tokensDto, Usuario usuario) {
 
-        int expiresIn = ((Number) tokens.get("expires_in")).intValue();
-
-        Instant expirationTime = Instant.now().plusSeconds(expiresIn);
-
-
-        SpotifyToken spotifyToken = new SpotifyToken();
-        spotifyToken.setAcess_token(tokens.get("access_token").toString());
-        spotifyToken.setRefresh_token(tokens.get("refresh_token").toString());
-        spotifyToken.setExpires_in(expirationTime);
+        SpotifyToken spotifyToken = spotifyTokenMapper.toEntity(tokensDto);
         spotifyTokenRepository.save(spotifyToken);
 
         usuario.setSpotify_info(spotifyToken);
         spotifyToken.setUsuario(usuario);
 
         usuarioRepository.save(usuario);
-
     }
 }

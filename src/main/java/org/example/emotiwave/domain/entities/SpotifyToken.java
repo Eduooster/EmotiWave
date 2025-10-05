@@ -26,10 +26,10 @@ public class SpotifyToken {
     @OneToOne
     private Usuario usuario;
     @Column(length = 500)
-    private String acess_token;
+    private String accessToken;
     @Column(length = 500)
-    private String refresh_token;
-    private Instant expires_in;
+    private String refreshToken;
+    private Instant expiresIn;
 
     @Override
     public final boolean equals(Object o) {

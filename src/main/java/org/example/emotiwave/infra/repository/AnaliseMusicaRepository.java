@@ -1,4 +1,7 @@
 package org.example.emotiwave.infra.repository;
 
-public interface AnaliseMusicaRepository {
+import org.example.emotiwave.domain.entities.AnaliseMusica;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AnaliseMusicaRepository extends JpaRepository<AnaliseMusica, Long> {
 }

@@ -1,4 +1,4 @@
-package org.example.emotiwave.application.service;
+package org.example.emotiwave.infra.security;
 
 import org.example.emotiwave.infra.repository.UsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -6,5 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface MusicaMapper {
-    MusicaSimplesDto toEntity(Musica musica);
+
+    Musica toEntity(MusicaSimplesDto musicaSimplesDto);
 }

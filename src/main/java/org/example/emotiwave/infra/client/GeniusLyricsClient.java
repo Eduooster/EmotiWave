@@ -1,4 +1,4 @@
-package org.example.emotiwave.application.service;
+package org.example.emotiwave.infra.client;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,15 +14,16 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 
-@Service
-public class GeniusLyricsService {
+@Component
+public class GeniusLyricsClient {
 
     private final String secret;
 
-    public GeniusLyricsService() {
+    public GeniusLyricsClient() {
         this.secret = System.getenv("GENIUS_KEY");
     }
 

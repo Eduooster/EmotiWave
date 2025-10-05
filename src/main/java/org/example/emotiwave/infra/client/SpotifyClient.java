@@ -1,10 +1,9 @@
-package org.example.emotiwave.application.service;
+package org.example.emotiwave.infra.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.emotiwave.application.dto.out.AcessTokenResponseDto;
 import org.example.emotiwave.domain.entities.Usuario;
-import org.example.emotiwave.infra.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -16,7 +15,7 @@ import java.util.Base64;
 import java.util.Map;
 
 @Service
-public class SpotifyAuthService {
+public class SpotifyClient {
 
 
     private final ObjectMapper objectMapper;
@@ -26,19 +25,14 @@ public class SpotifyAuthService {
     private final String baseUrl = "https://accounts.spotify.com/authorize";
     String secret = System.getenv("SECRET_SPOTIFY");
 
-    @Autowired UsuarioSpotifyTokenService usuarioSpotifyTokenService;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
 
-    public SpotifyAuthService(ObjectMapper objectMapper) {
+    public SpotifyClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
 
     }
 
     public String contruirAutorizacao(String authHeader) {
         String jwt = authHeader.replace("Bearer ", "");
-
-        System.out.println("jwt: " + jwt);
 
         return baseUrl + "?" +
                 "client_id=" + clientId +
@@ -49,16 +43,13 @@ public class SpotifyAuthService {
     }
 
 
-    public Map<String,Object> exchangeCodeForTokens(String code, Usuario usuario) {
-        System.out.println(usuario.getUsername());
-
-        try{
+    public AcessTokenResponseDto exchangeCodeForTokens(String code, Usuario usuario) {
+        try {
             String url = "https://accounts.spotify.com/api/token";
 
             String body = "grant_type=authorization_code"
                     + "&code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)
-                    + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8
-            );
+                    + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("POST");
@@ -73,35 +64,32 @@ public class SpotifyAuthService {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String response = br.lines().reduce("", (acc, line) -> acc + line);
-                System.out.println(response);
-                ObjectMapper mapper = new ObjectMapper();
-                Map<String, Object> acessTokenResponse = mapper.readValue(response, new TypeReference<>() {});
-                usuarioSpotifyTokenService.vincularToken(acessTokenResponse,usuario);
-                return acessTokenResponse;
-            } catch (IOException e) {
-                InputStream errorStream = conn.getErrorStream();
-                String errorResponse = new BufferedReader(new InputStreamReader(errorStream))
-                        .lines().reduce("", (acc, line) -> acc + line);
-                System.out.println("Erro Spotify: " + errorResponse);
-                throw e;
+            InputStream inputStream;
+            if (conn.getResponseCode() >= 400) {
+                inputStream = conn.getErrorStream();
+                if (inputStream == null) {
+                    throw new RuntimeException("Spotify retornou erro " + conn.getResponseCode() + " sem corpo");
+                }
+            } else {
+                inputStream = conn.getInputStream();
             }
 
+            String response = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                    .lines().reduce("", (acc, line) -> acc + line);
+
+            AcessTokenResponseDto acessTokenResponse = objectMapper.readValue(response, AcessTokenResponseDto.class);
+            return acessTokenResponse;
 
 
-
-
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Erro ao trocar code por token no Spotify", e);
         }
-
     }
+
 
     public String refreshAccessToken(Usuario usuario) {
         try {
-            String refreshToken = usuario.getSpotify_info().getRefresh_token();
+            String refreshToken = usuario.getSpotify_info().getRefreshToken();
             String url = "https://accounts.spotify.com/api/token";
 
             String body = "grant_type=refresh_token&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
@@ -125,8 +113,7 @@ public class SpotifyAuthService {
             Map<String, Object> tokens = new ObjectMapper().readValue(response, new TypeReference<>() {});
             String newAccessToken = (String) tokens.get("access_token");
 
-            usuario.getSpotify_info().setAcess_token(newAccessToken);
-            usuarioRepository.save(usuario);
+
 
             return newAccessToken;
         } catch (Exception e) {

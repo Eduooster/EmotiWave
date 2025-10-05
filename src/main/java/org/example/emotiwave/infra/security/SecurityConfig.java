@@ -21,7 +21,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/spotify/**").permitAll()
+                        .requestMatchers("/auth/**",
+                                "/spotify/callback",
+                                "/spotify/auth",
+                                "/spotify/user-top-read",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/usuario").permitAll()
                         .anyRequest().authenticated()
 
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

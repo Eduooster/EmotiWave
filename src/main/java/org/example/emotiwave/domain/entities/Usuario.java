@@ -28,6 +28,7 @@ public class Usuario implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
+    private Boolean deleted = false;
 
     @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private SpotifyToken spotify_info;

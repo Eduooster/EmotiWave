@@ -11,13 +11,13 @@ public class TopMusicasUsuarioDto {
 
     @Data
     public static class Track {
-        private String name; // nome da música
+        private String name;
         private List<Artist> artists;
         private String id;
 
         @Data
         public static class Artist {
-            private String name; // nome do artista
+            private String name;
         }
     }
 }
