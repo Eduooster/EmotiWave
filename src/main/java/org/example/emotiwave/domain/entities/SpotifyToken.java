@@ -23,6 +23,7 @@ public class SpotifyToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @OneToOne
     private Usuario usuario;
     @Column(length = 500)

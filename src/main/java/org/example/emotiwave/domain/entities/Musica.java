@@ -26,6 +26,7 @@ public class Musica {
     @Lob
     private String letra;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "musica", cascade = CascadeType.ALL)
     private List<UsuarioMusica> analises = new ArrayList<>();
 

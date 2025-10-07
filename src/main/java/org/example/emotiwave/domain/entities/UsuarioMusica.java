@@ -1,11 +1,18 @@
 package org.example.emotiwave.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "T_USUARIO_MUSICA")
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 public class UsuarioMusica
 {
     @Id
@@ -13,13 +20,32 @@ public class UsuarioMusica
     private Long id;
 
 
+    @ToString.Exclude
     @ManyToOne
     private Usuario usuario;
+    @ToString.Exclude
     @ManyToOne
     private Musica musica;
+    private boolean selecionada;
 
-    private LocalDate ouvida_em;
+    @Enumerated(EnumType.STRING)
+    private FonteMusica fonte;
 
 
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        UsuarioMusica that = (UsuarioMusica) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

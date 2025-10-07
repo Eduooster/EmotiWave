@@ -4,14 +4,13 @@ import jakarta.transaction.Transactional;
 import org.example.emotiwave.application.dto.in.MusicaSimplesDto;
 import org.example.emotiwave.application.dto.in.TopMusicasUsuarioDto;
 import org.example.emotiwave.application.mapper.MusicaMapper;
-import org.example.emotiwave.domain.entities.AnaliseMusica;
-import org.example.emotiwave.domain.entities.Musica;
-import org.example.emotiwave.domain.entities.Usuario;
+import org.example.emotiwave.domain.entities.*;
 import org.example.emotiwave.infra.client.GeniusLyricsClient;
 import org.example.emotiwave.infra.client.HuggingFaceZeroShotClient;
 import org.example.emotiwave.infra.client.SpotifyClient;
 import org.example.emotiwave.infra.repository.MusicaRepository;
 
+import org.example.emotiwave.infra.repository.UsuarioMusicaRepository;
 import org.example.emotiwave.infra.repository.UsuarioRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -40,8 +39,9 @@ public class PegarMusicasMaisOuvidasService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final SpotifyClient spotifyClient;
     String url = "https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=10";
+    private UsuarioMusicaRepository usuarioMusicaRepository;
 
-    public PegarMusicasMaisOuvidasService(MusicaRepository musicaRepository, MusicaMapper musicaMapper, SpotifyClient spotifyAuthService, GeniusLyricsClient geniusLyricsService, HuggingFaceZeroShotClient huggingFaceZeroShotService, UsuarioRepository usuarioRepository, SpotifyClient spotifyClient) {
+    public PegarMusicasMaisOuvidasService(MusicaRepository musicaRepository, MusicaMapper musicaMapper, SpotifyClient spotifyAuthService, GeniusLyricsClient geniusLyricsService, HuggingFaceZeroShotClient huggingFaceZeroShotService, UsuarioRepository usuarioRepository, SpotifyClient spotifyClient, UsuarioMusicaRepository usuarioMusicaRepository) {
         this.musicaRepository = musicaRepository;
         this.musicaMapper = musicaMapper;
         this.spotifyAuthService = spotifyAuthService;
@@ -49,6 +49,7 @@ public class PegarMusicasMaisOuvidasService {
         this.huggingFaceZeroShotService = huggingFaceZeroShotService;
         this.usuarioRepository = usuarioRepository;
         this.spotifyClient = spotifyClient;
+        this.usuarioMusicaRepository = usuarioMusicaRepository;
     }
 
 
@@ -65,7 +66,7 @@ public class PegarMusicasMaisOuvidasService {
 
         List<MusicaSimplesDto> topMusicas = topMusicasResponseToMusicaSimplesDto(dtoSpotify);
 
-        converterTopMusicasToMusicaEntity(topMusicas);
+        converterTopMusicasToMusicaEntity(topMusicas,usuario);
 
         return ResponseEntity.ok(topMusicas);
     }
@@ -103,7 +104,7 @@ public class PegarMusicasMaisOuvidasService {
     }
 
     @Transactional
-    protected void converterTopMusicasToMusicaEntity(List<MusicaSimplesDto> topMusicas) {
+    protected void converterTopMusicasToMusicaEntity(List<MusicaSimplesDto> topMusicas, Usuario usuario) {
         for (MusicaSimplesDto topMusicaDto : topMusicas) {
             if (musicaRepository.findBySpotifyTrackId(topMusicaDto.getSpotifyTrackId()) != null) continue;
 
@@ -119,6 +120,13 @@ public class PegarMusicasMaisOuvidasService {
                 analise.setMusica(musicaEntity);
 
                 musicaEntity.setAnalise(analise);
+
+                UsuarioMusica usuarioMusica = new UsuarioMusica();
+                usuarioMusica.setMusica(musicaEntity);
+                usuarioMusica.setUsuario(usuario);
+                usuarioMusica.setSelecionada(false);
+                usuarioMusica.setFonte(FonteMusica.SPOTIFY);
+                usuarioMusicaRepository.save(usuarioMusica);
 
 
             } catch (IOException | InterruptedException e) {

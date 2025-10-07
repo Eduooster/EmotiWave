@@ -30,11 +30,13 @@ public class Usuario implements UserDetails {
     private Set<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
     private Boolean deleted = false;
 
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private SpotifyToken spotify_info;
 
     private LocalDate criado_em  = LocalDate.now();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<UsuarioMusica> analises = new ArrayList<>();
 

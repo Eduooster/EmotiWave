@@ -1,13 +1,15 @@
 package org.example.emotiwave.application.mapper;
 
+import java.util.List;
 import javax.annotation.processing.Generated;
 import org.example.emotiwave.application.dto.in.MusicaSimplesDto;
+import org.example.emotiwave.application.dto.out.MusicasMaisOuvidasResponseDto;
 import org.example.emotiwave.domain.entities.Musica;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-05T19:28:39-0300",
+    date = "2025-10-06T16:55:12-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
@@ -26,5 +28,18 @@ public class MusicaMapperImpl implements MusicaMapper {
         musica.setSpotifyTrackId( musicaSimplesDto.getSpotifyTrackId() );
 
         return musica;
+    }
+
+    @Override
+    public MusicasMaisOuvidasResponseDto toMusicaMaisOuvidasResponseDto(Musica musica) {
+        if ( musica == null ) {
+            return null;
+        }
+
+        List<MusicasMaisOuvidasResponseDto.MusicaResponseDto> musicas = null;
+
+        MusicasMaisOuvidasResponseDto musicasMaisOuvidasResponseDto = new MusicasMaisOuvidasResponseDto( musicas );
+
+        return musicasMaisOuvidasResponseDto;
     }
 }
