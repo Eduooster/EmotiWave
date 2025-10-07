@@ -38,7 +38,7 @@ public class Usuario implements UserDetails {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<UsuarioMusica> analises = new ArrayList<>();
+    private List<UsuarioMusica> usuarioMusica = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {
