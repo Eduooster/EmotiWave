@@ -26,11 +26,12 @@ public class Musica {
     @Lob
     private String letra;
 
+
     @ToString.Exclude
-    @OneToMany(mappedBy = "musica", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "musica")
     private List<UsuarioMusica> analises = new ArrayList<>();
 
-    @OneToOne(mappedBy = "musica", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "musica")
     private AnaliseMusica analise;
 
     @Override

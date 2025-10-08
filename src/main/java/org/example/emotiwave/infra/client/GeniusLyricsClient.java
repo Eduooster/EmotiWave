@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.example.emotiwave.domain.exceptions.LetraMusicaNaoEncontradaGenius;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -44,8 +45,8 @@ public class GeniusLyricsClient {
         JsonArray hits = json.getAsJsonObject("response").getAsJsonArray("hits");
 
         if (hits.size() == 0) {
-            System.out.println("Música não encontrada!");
-            return null;
+            throw new LetraMusicaNaoEncontradaGenius("Letra musica nao encontrada");
+
         }
 
 

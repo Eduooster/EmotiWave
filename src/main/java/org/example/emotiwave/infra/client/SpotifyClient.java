@@ -2,9 +2,22 @@ package org.example.emotiwave.infra.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nullable;
+import org.example.emotiwave.application.dto.in.MusicasUsuarioSpotifyDto;
 import org.example.emotiwave.application.dto.out.AcessTokenResponseDto;
 import org.example.emotiwave.domain.entities.Usuario;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -13,17 +26,20 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Service
+@Component
 public class SpotifyClient {
 
 
     private final ObjectMapper objectMapper;
     String clientId = System.getenv("CLIENT_ID_SPOTIFY");
     private final String redirectUri = "http://127.0.0.1:8080/spotify/callback";
-    private final String scopes = "user-top-read user-read-private";
+    private final String scopes = "user-top-read user-read-private user-read-recently-played";
     private final String baseUrl = "https://accounts.spotify.com/authorize";
     String secret = System.getenv("SECRET_SPOTIFY");
+    private final RestTemplate restTemplate = new RestTemplate();
+
 
 
     public SpotifyClient(ObjectMapper objectMapper) {
@@ -41,7 +57,6 @@ public class SpotifyClient {
                 "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
                 "&state=" + jwt;
     }
-
 
     public AcessTokenResponseDto exchangeCodeForTokens(String code, Usuario usuario) {
         try {
@@ -86,8 +101,7 @@ public class SpotifyClient {
         }
     }
 
-
-    public String refreshAccessToken(Usuario usuario) {
+    public AcessTokenResponseDto refreshAccessToken(Usuario usuario) {
         try {
             String refreshToken = usuario.getSpotify_info().getRefreshToken();
             String url = "https://accounts.spotify.com/api/token";
@@ -107,20 +121,59 @@ public class SpotifyClient {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String response = br.lines().reduce("", (acc, line) -> acc + line);
+            // Ler resposta
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String response = br.lines().collect(Collectors.joining());
 
-            Map<String, Object> tokens = new ObjectMapper().readValue(response, new TypeReference<>() {});
-            String newAccessToken = (String) tokens.get("access_token");
+                // Desserializa para DTO
+                ObjectMapper mapper = new ObjectMapper();
+                AcessTokenResponseDto tokenResponse = mapper.readValue(response, AcessTokenResponseDto.class);
 
+                return tokenResponse;
+            }
 
-
-            return newAccessToken;
         } catch (Exception e) {
             throw new RuntimeException("Erro ao renovar access token do Spotify", e);
         }
     }
 
 
+    public <T> T enviarRequisicaoSpotifyUtils(
+            Usuario usuario,
+            String url,
+            ParameterizedTypeReference<T> responseType,
+            @Nullable Long after // use Long para timestamps em ms
+    ) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(usuario.getSpotify_info().getAccessToken());
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url);
+        if (after != null) {
+            uriBuilder.queryParam("after", after);
+        }
+        String urlFinal = uriBuilder.toUriString();
+
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(
+                    urlFinal,
+                    HttpMethod.GET,
+                    request,
+                    responseType
+            );
+            return response.getBody();
+        } catch (HttpStatusCodeException e) {
+            throw new RuntimeException("Falha ao consultar Spotify: " + e.getStatusCode());
+        }
+    }
+
+
 }
+
+
+//    public MusicasUsuarioSpotifyDto pegarMusicasOuvidasDoDia() {
+//
+//    }
+
 

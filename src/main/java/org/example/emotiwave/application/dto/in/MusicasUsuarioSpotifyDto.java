@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class TopMusicasUsuarioDto {
+public class MusicasUsuarioSpotifyDto {
     private List<Track> items;
 
     @Data

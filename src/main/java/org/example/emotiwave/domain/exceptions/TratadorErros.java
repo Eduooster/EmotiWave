@@ -15,6 +15,12 @@ public class TratadorErros {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(detalhar(ex));
     }
 
+    @ExceptionHandler(LetraMusicaNaoEncontradaGenius.class)
+    public ResponseEntity<Map<String, String>> LetraMusicaNaoEncontradaGenius(LetraMusicaNaoEncontradaGenius ex
+    ){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(detalhar(ex));
+    }
+
     public Map<String,String> detalhar(Exception ex) {
         Map<String,String> map = new HashMap<>();
         map.put("erro", ex.getClass().getSimpleName());

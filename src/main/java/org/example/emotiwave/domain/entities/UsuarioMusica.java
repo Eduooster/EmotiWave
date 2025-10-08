@@ -21,12 +21,14 @@ public class UsuarioMusica
 
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Usuario usuario;
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Musica musica;
-    private boolean selecionada;
+    private boolean selecionada = false;
+
+    private LocalDate ouvidaEm;
 
     @Enumerated(EnumType.STRING)
     private FonteMusica fonte;
