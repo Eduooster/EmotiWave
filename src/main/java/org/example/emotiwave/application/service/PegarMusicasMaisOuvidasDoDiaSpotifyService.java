@@ -94,7 +94,7 @@ public class PegarMusicasMaisOuvidasDoDiaSpotifyService {
                             : "Artista desconhecido";
                     String spotifyId = item.getTrack().getId();
 
-                    return new MusicaSimplesDto(nomeMusica, artista, spotifyId);
+                    return new MusicaSimplesDto(nomeMusica, artista, spotifyId,artista);
                 })
                 .filter(Objects::nonNull)
                 .toList();
