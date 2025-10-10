@@ -21,7 +21,8 @@ public interface UsuarioMusicaRepository  extends JpaRepository<UsuarioMusica, L
        new org.example.emotiwave.application.dto.in.MusicaSimplesDto(
             m.titulo,
             m.artista,
-            m.spotifyTrackId
+            m.spotifyTrackId,
+            m.artistaId
            
         )
     FROM UsuarioMusica um

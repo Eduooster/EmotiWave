@@ -25,12 +25,12 @@ public class SpotifyService {
     }
 
     public String solicitarAutorizacao(String authHeader){
-        return  spotifyClient.contruirAutorizacao(authHeader);
+        return  spotifyClient.construirAutorizacao(authHeader);
     }
 
     public void exchangeCodeForTokens(String code, Usuario usuario) {
 
-        AcessTokenResponseDto acessTokenResponse = spotifyClient.exchangeCodeForTokens(code,usuario);
+        AcessTokenResponseDto acessTokenResponse = spotifyClient.exchangeCodeForTokens(code);
         usuarioSpotifyTokenService.vincularToken(acessTokenResponse, usuario);
 
     }

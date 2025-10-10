@@ -1,9 +1,7 @@
 package org.example.emotiwave.infra.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
-import org.example.emotiwave.application.dto.in.MusicasUsuarioSpotifyDto;
 import org.example.emotiwave.application.dto.out.AcessTokenResponseDto;
 import org.example.emotiwave.domain.entities.Usuario;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,8 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
@@ -25,7 +27,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -39,98 +40,78 @@ public class SpotifyClient {
     private final String baseUrl = "https://accounts.spotify.com/authorize";
     String secret = System.getenv("SECRET_SPOTIFY");
     private final RestTemplate restTemplate = new RestTemplate();
+    private final WebClient webClient;
 
 
 
-    public SpotifyClient(ObjectMapper objectMapper) {
+    public SpotifyClient(ObjectMapper objectMapper, WebClient webClient) {
         this.objectMapper = objectMapper;
 
+        this.webClient = webClient;
     }
 
-    public String contruirAutorizacao(String authHeader) {
+    public String construirAutorizacao(String authHeader) {
+        // remove "Bearer " do header
         String jwt = authHeader.replace("Bearer ", "");
 
-        return baseUrl + "?" +
-                "client_id=" + clientId +
-                "&response_type=code" +
-                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) +
-                "&scope=" + URLEncoder.encode(scopes, StandardCharsets.UTF_8) +
-                "&state=" + jwt;
+        // constrói a URL de forma segura
+        String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .queryParam("client_id", clientId)
+                .queryParam("response_type", "code")
+                .queryParam("redirect_uri", redirectUri)
+                .queryParam("scope", scopes)
+                .queryParam("state", jwt)
+                .build()
+                .toUriString();
+
+        return url;
     }
 
-    public AcessTokenResponseDto exchangeCodeForTokens(String code, Usuario usuario) {
+    public AcessTokenResponseDto exchangeCodeForTokens(String code) {
         try {
-            String url = "https://accounts.spotify.com/api/token";
-
-            String body = "grant_type=authorization_code"
-                    + "&code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)
-                    + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
-
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-
             String basicAuth = Base64.getEncoder()
                     .encodeToString((clientId + ":" + secret).getBytes(StandardCharsets.UTF_8));
-            conn.setRequestProperty("Authorization", "Basic " + basicAuth);
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.getBytes(StandardCharsets.UTF_8));
-            }
+            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+            formData.add("grant_type", "authorization_code");
+            formData.add("code", code);
+            formData.add("redirect_uri", redirectUri);
 
-            InputStream inputStream;
-            if (conn.getResponseCode() >= 400) {
-                inputStream = conn.getErrorStream();
-                if (inputStream == null) {
-                    throw new RuntimeException("Spotify retornou erro " + conn.getResponseCode() + " sem corpo");
-                }
-            } else {
-                inputStream = conn.getInputStream();
-            }
+            WebClient webClient = WebClient.builder()
+                    .baseUrl("https://accounts.spotify.com")
+                    .build();
 
-            String response = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                    .lines().reduce("", (acc, line) -> acc + line);
-
-            AcessTokenResponseDto acessTokenResponse = objectMapper.readValue(response, AcessTokenResponseDto.class);
-            return acessTokenResponse;
-
-
+            return webClient.post()
+                    .uri("/api/token")
+                    .header(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .bodyValue(formData)
+                    .retrieve()
+                    .bodyToMono(AcessTokenResponseDto.class)
+                    .block(); // bloqueia até receber a resposta
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao trocar code por token no Spotify", e);
+            throw new RuntimeException("Erro ao trocar código por tokens do Spotify", e);
         }
     }
 
     public AcessTokenResponseDto refreshAccessToken(Usuario usuario) {
         try {
             String refreshToken = usuario.getSpotify_info().getRefreshToken();
-            String url = "https://accounts.spotify.com/api/token";
-
-            String body = "grant_type=refresh_token&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
-
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
 
             String basicAuth = Base64.getEncoder()
                     .encodeToString((clientId + ":" + secret).getBytes(StandardCharsets.UTF_8));
-            conn.setRequestProperty("Authorization", "Basic " + basicAuth);
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.getBytes(StandardCharsets.UTF_8));
-            }
+            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+            formData.add("grant_type", "refresh_token");
+            formData.add("refresh_token", refreshToken);
 
-            // Ler resposta
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                String response = br.lines().collect(Collectors.joining());
-
-                // Desserializa para DTO
-                ObjectMapper mapper = new ObjectMapper();
-                AcessTokenResponseDto tokenResponse = mapper.readValue(response, AcessTokenResponseDto.class);
-
-                return tokenResponse;
-            }
+            return webClient.post()
+                    .uri("/api/token")
+                    .header(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth)
+                    .bodyValue(formData)
+                    .retrieve()
+                    .bodyToMono(AcessTokenResponseDto.class)
+                    .block(); // bloqueia até receber a resposta
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao renovar access token do Spotify", e);
