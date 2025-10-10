@@ -36,7 +36,6 @@ public class SpotifyService {
     }
 
     public void verificarExpiracaoToken(Usuario usuario) {
-        System.out.println(usuario.getSpotify_info());
 
 
         if (usuario.getSpotify_info().getExpiresIn().isBefore(now.plusSeconds(5 * 60))) {

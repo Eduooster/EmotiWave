@@ -25,6 +25,7 @@ public class Musica {
     private String spotifyTrackId;
     @Lob
     private String letra;
+    private String artistaId;
 
 
     @ToString.Exclude

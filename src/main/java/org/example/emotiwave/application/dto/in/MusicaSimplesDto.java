@@ -9,4 +9,5 @@ public class MusicaSimplesDto {
     private String titulo;
     private String artista;
     private String spotifyTrackId;
+    private String artistaId;
 }

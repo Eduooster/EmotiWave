@@ -38,11 +38,11 @@ public class Usuario implements UserDetails {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-<<<<<<< HEAD
     private List<UsuarioMusica> musicas = new ArrayList<>();
-=======
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<UsuarioMusica> usuarioMusica = new ArrayList<>();
->>>>>>> 1094dbc6b3a74d7a261491445099412fd4ebfb75
+
 
     @Override
     public final boolean equals(Object o) {

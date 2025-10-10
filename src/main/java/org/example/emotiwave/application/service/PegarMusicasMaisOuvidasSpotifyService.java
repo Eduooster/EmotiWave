@@ -34,7 +34,7 @@ public class PegarMusicasMaisOuvidasSpotifyService {
     private final HuggingFaceZeroShotClient huggingFaceZeroShotService;
     private final UsuarioRepository usuarioRepository;
     private final SpotifyClient spotifyClient;
-    String url = "https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=10";
+    String url = "https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=3";
     private UsuarioMusicaRepository usuarioMusicaRepository;
     Instant now = Instant.now();
 
@@ -70,11 +70,15 @@ public class PegarMusicasMaisOuvidasSpotifyService {
     private List<MusicaSimplesDto>  topMusicasResponseToMusicaSimplesDto(MusicasUsuarioSpotifyDto dtoSpotify) {
         List<MusicaSimplesDto> topMusicas = new ArrayList<>();
         if (dtoSpotify != null && dtoSpotify.getItems() != null) {
+
             for (MusicasUsuarioSpotifyDto.Track track : dtoSpotify.getItems()) {
+
                 topMusicas.add(new MusicaSimplesDto(
                         track.getName(),
-                        track.getArtists().get(0).getName(),
-                        track.getId()
+                        track.getArtistsNames(),
+                        track.getId(),
+                        track.getArtistsIds()
+
 
                 ));
             }
