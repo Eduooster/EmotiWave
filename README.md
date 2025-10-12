@@ -11,7 +11,7 @@ Responsável pelo projeto Java: Eduardo Osterloh Bindo
 
 
 
-
+integrantes: Rangel Bernardi Jordao, Lucas José Lima
 
 
 
