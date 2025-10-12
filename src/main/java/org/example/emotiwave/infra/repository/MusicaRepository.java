@@ -9,4 +9,6 @@ public interface MusicaRepository extends JpaRepository<Musica, Long> {
 
 
     Musica findBySpotifyTrackId(String spotifyTrackId);
+
+    Musica findByArtistaAndTitulo(String artista, String titulo);
 }

@@ -27,7 +27,7 @@ public class SecurityConfig {
                                 "/spotify/user-top-read",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/usuario").permitAll()
+                                "/usuarios").permitAll()
                         .anyRequest().authenticated()
 
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

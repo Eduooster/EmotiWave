@@ -32,9 +32,10 @@ public class Usuario implements UserDetails {
 
     @ToString.Exclude
     @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private SpotifyToken spotify_info;
-
-    private LocalDate criado_em  = LocalDate.now();
+    @JoinColumn(name = "spotify_info_id")
+    private SpotifyToken spotifyInfo;
+    @Column(name = "criado_em")
+    private LocalDate criadoEm  = LocalDate.now();
 
     @ToString.Exclude
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-10T12:10:35-0300",
+    date = "2025-10-12T18:26:39-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.2 (Oracle Corporation)"
 )
 @Component
@@ -27,6 +27,7 @@ public class MusicaMapperImpl implements MusicaMapper {
         musica.setArtista( musicaSimplesDto.getArtista() );
         musica.setSpotifyTrackId( musicaSimplesDto.getSpotifyTrackId() );
         musica.setArtistaId( musicaSimplesDto.getArtistaId() );
+        musica.setGenero( musicaSimplesDto.getGenero() );
 
         return musica;
     }

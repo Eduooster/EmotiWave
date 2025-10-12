@@ -6,10 +6,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.example.emotiwave.domain.exceptions.GeniusLyricsNaoEncontrada;
 import org.example.emotiwave.domain.exceptions.LetraMusicaNaoEncontradaGenius;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,14 +19,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 
 @Component
 public class GeniusLyricsClient {
 
     private final String secret;
+    private final WebClient webClient;
 
-    public GeniusLyricsClient() {
+    public GeniusLyricsClient(WebClient webClient) {
+        this.webClient = webClient;
         this.secret = System.getenv("GENIUS_KEY");
     }
 
@@ -80,7 +86,8 @@ public class GeniusLyricsClient {
 
         return lyricsText;
     }
-
-
-
 }
+
+
+
+

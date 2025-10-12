@@ -26,6 +26,8 @@ public class Musica {
     @Lob
     private String letra;
     private String artistaId;
+    private String genero;
+    private boolean deleted;
 
 
     @ToString.Exclude
@@ -49,5 +51,9 @@ public class Musica {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public Musica orElseThrow(Object asd) {
+        return null;
     }
 }

@@ -15,6 +15,8 @@ public class MusicasUsuarioSpotifyDto {
         private String name;
         private List<Artist> artists;
         private String id;
+        private String genero;
+
 
         public String getArtistsNames() {
             if (artists == null || artists.isEmpty()) return "Desconhecido";
@@ -35,6 +37,7 @@ public class MusicasUsuarioSpotifyDto {
             private String name;
             private String id;
         }
+
     }
 }
 

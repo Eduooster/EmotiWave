@@ -1,16 +1,20 @@
 package org.example.emotiwave.application.mapper;
 
 import org.example.emotiwave.application.dto.in.UsuarioCreateRequestDto;
-import org.example.emotiwave.application.dto.out.ListaUsuarioResponseDto;
-import org.example.emotiwave.application.dto.out.UsuarioDetailsResponseDto;
+
+import org.example.emotiwave.application.dto.out.UsuarioDetailResponseDto;
+
+import org.example.emotiwave.application.dto.out.UsuarioListResponseDto;
 import org.example.emotiwave.domain.entities.Usuario;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
     Usuario toUsuario(UsuarioCreateRequestDto dto);
 
-    UsuarioDetailsResponseDto toUsuarioDetailsReponseDto(Usuario usuario);
 
-    ListaUsuarioResponseDto toListaResponseDto(Usuario usuario);
+    UsuarioDetailResponseDto toUsuarioDetailsReponseDto(Usuario usuario);
+
+    UsuarioListResponseDto toListaResponseDto(Usuario usuario);
 }

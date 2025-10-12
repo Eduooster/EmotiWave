@@ -1,0 +1,106 @@
+### Autenticação de usuário (POST) - não precisa de Authorization
+POST http://localhost:8080/auth
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "eduardo",
+  "senha": "senha123"
+}
+
+### Listar usuários (GET) - precisa de Authorization
+GET http://localhost:8080/usuario
+Authorization: Bearer <token>
+Accept: application/json
+
+### Detalhar usuário por ID (GET) - precisa de Authorization
+GET http://localhost:8080/usuario/1
+Authorization: Bearer <token>
+Accept: application/json
+
+### Excluir usuário por ID (DELETE) - precisa de Authorization
+DELETE http://localhost:8080/usuario/1
+Authorization: Bearer <token>
+Accept: application/json
+
+### Criar um novo usuário (POST) - não precisa de Authorization
+POST http://localhost:8080/usuario
+Content-Type: application/json
+Accept: application/json
+
+### Listar músicas mais ouvidas do sistema (GET) - precisa de Authorization
+GET http://localhost:8080/musicas/top?page=0&size=10
+Authorization: Bearer <token>
+Accept: application/json
+
+
+### Buscar música no Spotify por artista e título (GET) - precisa de Authorization
+GET http://localhost:8080/musicas/spotify/buscar?artista=Coldplay&titulo=Yellow
+Authorization: Bearer <token>
+Accept: application/json
+
+
+### Redirecionar usuário para login do Spotify
+GET http://localhost:8080/spotify/auth
+Authorization: Bearer {{token_jwt}}
+
+### Callback do Spotify após login
+GET http://localhost:8080/spotify/callback?code={{codigo_autorizacao}}&state={{token_jwt}}
+
+
+### 🎵 Listar músicas recentes do usuário sem Spotify
+GET http://localhost:8080/musicas/sem-spotify
+Authorization: Bearer {{token_jwt}}
+Accept: application/json
+
+
+### 💾 Salvar preferências musicais do usuário (sem Spotify)
+POST http://localhost:8080/musicas/preferencias
+Authorization: Bearer {{token_jwt}}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "spotifyTrackId": "1abcXYZ123",
+      "ouvidaHoje": true,
+      "selecionada": true
+    },
+    {
+      "spotifyTrackId": "9zzzKLM456",
+      "ouvidaHoje": false,
+      "selecionada": false
+    }
+  ]
+}
+
+
+### 🔝 Listar top músicas do usuário via Spotify
+GET http://localhost:8080/musicas/spotify/top
+Authorization: Bearer {{token_jwt}}
+Accept: application/json
+
+
+### 🕒 Listar músicas recentemente tocadas via Spotify
+GET http://localhost:8080/musicas/spotify/recentes
+Authorization: Bearer {{token_jwt}}
+Accept: application/json
+
+
+### ❌ Desvincular música do usuário
+DELETE http://localhost:8080/musicas/preferencias/{{musicaId}}
+Authorization: Bearer {{token_jwt}}
+
+
+### ✅ Marcar ou desmarcar música como selecionada
+PATCH http://localhost:8080/musicas/preferencias/musica/{{id}}
+Authorization: Bearer {{token_jwt}}
+Content-Type: application/json
+
+{
+  "selecionada": true
+}
+
+
+
+

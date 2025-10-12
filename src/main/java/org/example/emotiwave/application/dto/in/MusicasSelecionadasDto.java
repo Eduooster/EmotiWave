@@ -13,6 +13,7 @@ public class MusicasSelecionadasDto {
     public static class Item {
         private String spotifyTrackId;
         private boolean ouvidaHoje;
+        private boolean selecionada;
 
     }
 

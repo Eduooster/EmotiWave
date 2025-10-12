@@ -1,47 +1,50 @@
 package org.example.emotiwave.web.Controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.emotiwave.application.dto.in.MusicaSimplesDto;
-import org.example.emotiwave.application.dto.out.AcessTokenResponseDto;
-import org.example.emotiwave.application.service.PegarMusicasMaisOuvidasDoDiaSpotifyService;
-import org.example.emotiwave.application.service.PegarMusicasMaisOuvidasSpotifyService;
-import org.example.emotiwave.application.service.SpotifyService;
+import org.example.emotiwave.application.service.spotifyServices.SpotifyService;
 import org.example.emotiwave.domain.entities.Usuario;
 import org.example.emotiwave.infra.security.TokenService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/spotify")
-@Tag(name = "Spotify", description = "Gerenciamento do spotify")
+@Tag(name = "SpotifyAuth", description = "Gerenciamento da autenticaçãp com o  spotify")
 public class SpotifyController {
 
-    private final PegarMusicasMaisOuvidasSpotifyService pegarMusicasMaisOuvidasService;
+
     private final SpotifyService spotifyService;
     private final TokenService tokenService;
-    private final PegarMusicasMaisOuvidasDoDiaSpotifyService pegarMusicasMaisOuvidasDoDiaSpotifyService;
 
 
-    public SpotifyController(SpotifyService spotifyService, TokenService tokenService, PegarMusicasMaisOuvidasDoDiaSpotifyService pegarMusicasMaisOuvidasDoDiaSpotifyService, PegarMusicasMaisOuvidasSpotifyService pegarMusicasMaisOuvidasSpotifyService, PegarMusicasMaisOuvidasDoDiaSpotifyService pegarMusicasMaisOuvidasDoDiaSpotifyService1) {
-        this.pegarMusicasMaisOuvidasDoDiaSpotifyService = pegarMusicasMaisOuvidasDoDiaSpotifyService1;
 
-        this.pegarMusicasMaisOuvidasService = pegarMusicasMaisOuvidasSpotifyService;
+    public SpotifyController(SpotifyService spotifyService, TokenService tokenService ) {
         this.spotifyService = spotifyService;
         this.tokenService = tokenService;
 
     }
 
+    @Operation(
+            summary = "Redirecionar usuário para login do Spotify",
+            description = "Gera a URL de autorização do Spotify para o usuário se conectar à sua conta. É necessário passar o token JWT no header Authorization."
+    )
+    @ApiResponse(responseCode = "200", description = "URL de autorização gerada com sucesso")
     @GetMapping("/auth")
-    public ResponseEntity<String> redirecaoParaSpotifyLogin(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<String> redirecionarParaLoginSpotify(@RequestHeader("Authorization") String authHeader) {
         String authUrl = spotifyService.solicitarAutorizacao(authHeader);
         return ResponseEntity.ok(authUrl);
     }
 
+    @Operation(
+            summary = "Callback do Spotify após login",
+            description = "Recebe o código de autorização do Spotify e o token JWT do usuário (state) para trocar pelo access token. Atualiza os tokens do usuário no sistema."
+    )
+    @ApiResponse(responseCode = "200", description = "Código de autorização recebido e processado com sucesso")
     @GetMapping("/callback")
     public ResponseEntity<?> spotifyCallback(
             @RequestParam("code") String code,
@@ -51,20 +54,8 @@ public class SpotifyController {
         return ResponseEntity.ok(code);
    }
 
-   @GetMapping("/user-top-read")
-    public ResponseEntity userTopRead(@AuthenticationPrincipal Usuario usuario)
-    {
-        ResponseEntity<List<MusicaSimplesDto>> response = pegarMusicasMaisOuvidasService.pegarMusicasMaisOuvidasSpotify(usuario);
-        return ResponseEntity.ok(response);
-    }
 
-    @GetMapping("/recently-played")
-    public ResponseEntity recentlyPlayed(@AuthenticationPrincipal Usuario usuario) throws IOException, InterruptedException {
 
-        ResponseEntity<List<MusicaSimplesDto>> response = pegarMusicasMaisOuvidasDoDiaSpotifyService.pegarMusicasMaisOuvidasDoDia(usuario);
-        return ResponseEntity.ok(response);
-
-    }
 
 
 
