@@ -35,7 +35,7 @@ public class AutenticacaoController {
         ),
         @ApiResponse(
                 responseCode = "401",
-                description = "Credenciais inválidas"
+                description = "Credenciais inválidass"
         ),
         @ApiResponse(
                 responseCode = "400",
